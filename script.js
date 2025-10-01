@@ -61,35 +61,35 @@ document.addEventListener('DOMContentLoaded',() =>{
     }
 
     //remove bg
-    removeBackgroundBtn.addEventListener('click', async()=>{
-        //load
-        loading.style.display = 'flex';
-        try {
-            const formData = new FormData();
-            //blob
-            const blob = await fetch(originalImage.src).then((r)=>r.blob())
-            //https://api.slazzer.com/v2.0/remove_image_background
-            formData.append('source_image_file',blob);
-            const response = await fetch("https://api.slazzer.com/v2.0/remove_image_background",{
-                method:'POST',
-                headers:{
-                    "API-KEY":"API Key",
-                },
-                body: formData,
-            });
-            const blob_response = await response.blob();
-            const url = URL.createObjectURL(blob_response);
-            processedImage.src = url;
-            processedImage.hidden = false;
-            downloadBtn.disabled = false;
+    removeBackgroundBtn.addEventListener("click", async () => {
+      loading.style.display = "flex";
+      try {
+        
+        const blob = await fetch(originalImage.src).then((r) => r.blob());
+        const reader = new FileReader();
+        reader.readAsDataURL(blob);
 
-        } catch (error) {
-            
-        }finally{
-            //hide the loading
-            loading.style.display = "none";
-        }
-    })
+        reader.onloadend = async () => {
+          const base64Image = reader.result;
+
+          const response = await fetch("/.netlify/functions/removeBg", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ image: base64Image }),
+          });
+
+          const data = await response.json();
+          processedImage.src = data.image;
+          processedImage.hidden = false;
+          downloadBtn.disabled = false;
+          loading.style.display = "none";
+        };
+      } catch (err) {
+        console.error(err);
+        loading.style.display = "none";
+      }
+    });
+
     
     downloadBtn.addEventListener('click', ()=>{
         const link = document.createElement("a");
