@@ -64,7 +64,6 @@ document.addEventListener('DOMContentLoaded',() =>{
     removeBackgroundBtn.addEventListener("click", async () => {
       loading.style.display = "flex";
       try {
-        
         const blob = await fetch(originalImage.src).then((r) => r.blob());
         const reader = new FileReader();
         reader.readAsDataURL(blob);
@@ -72,7 +71,7 @@ document.addEventListener('DOMContentLoaded',() =>{
         reader.onloadend = async () => {
           const base64Image = reader.result;
 
-          const response = await fetch("/.netlify/functions/removeBg", {
+          const response = await fetch("/api/removeBg", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ image: base64Image }),
@@ -89,6 +88,7 @@ document.addEventListener('DOMContentLoaded',() =>{
         loading.style.display = "none";
       }
     });
+
 
     
     downloadBtn.addEventListener('click', ()=>{
